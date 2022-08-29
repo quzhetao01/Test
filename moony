@@ -1,0 +1,55 @@
+// import {stack, square, beside, beside_frac, stack_frac, stackn, blank, circle, ribbon, show} from 'rune';
+
+// function moony_1(bottomRight) {
+//     return stack(beside(circle, blank), beside(square, bottomRight));
+// }
+
+// function moony_2(number) {
+//     return iter(number, 0, circle);
+// }
+
+// function iter(n, count, rune) {
+//     return count === n - 1
+//         ? rune
+//         : iter(n, count + 1, moony_1(rune));
+// }
+
+// function moony(n) {
+//     // return n === 0
+//     //     ? blank
+//     //     : beside_frac(1 / n, stack_frac(1 / n, circle, stackn(n - 1, square)), moony(n - 1));
+//     return n === 1 
+//         ? circle
+//         : beside_frac(1 / n, stack_frac(1 / n, circle,square), stack_frac(1 / n, blank, moony(n - 1)));
+// }
+
+
+// function iter2(n, count, rune) {
+//     return count === n
+//         ? rune
+//         : iter2(n, count + 1, stack_frac(count / n, stackn(count, blank), 
+//         stack_frac(1 / (n - 1), circle, stackn(n - count - 1, square))));
+// }
+
+// function moony3(n) {
+//     function iter3(count, rune) {
+//         return n === count
+//             ? rune
+//             : iter3(count + 1, 
+//             beside_frac(1 / (count + 1), 
+//             stack_frac(1 / (count + 1), circle, square), 
+//             stack_frac(1 / (count + 1), blank, rune)));
+//     }
+//     return iter3(1, circle);
+// }
+// show(moony3(5));
+
+function try3(number) {
+    return number > 0 
+        ? 0
+        : 0
+        ? 1
+        : 2 * number;
+}
+
+display(try3(0));
