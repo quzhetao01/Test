@@ -1,0 +1,176 @@
+function reverse(lst) {
+    return is_null(lst)
+        ? null
+        : pair(reverse(tail(lst)), head(lst));
+}
+
+display(list(1, 2, 3));
+draw_data(reverse(list(1, 2, 3, 4)));
+
+function length(xs) {
+    return is_null(xs)
+        ? 0
+        : 1 + length(tail(xs));
+}
+
+display(length(list(null)));
+
+function every_second(xs) {
+    // 1. Identify base case(s)
+    // 2. Identify how to use base cases to solve higher level
+    return is_null(xs) || is_null(tail(xs))
+        ? null
+        : pair(head(tail(xs)),
+               every_second(tail(tail(xs))));
+}
+
+function every_second_v2(items) {
+    function helper(xs, result) {
+        return is_null(xs) || is_null(tail(xs))
+            ? reverse(result)
+            : helper(tail(tail(xs)), pair(head(tail(xs)), result));
+    }
+    return helper(items, null);
+}
+
+function reverse_m(xs) {
+    function iter(ys, acc) {
+        return is_null(ys)
+            ? acc
+            : iter(tail(ys), pair(head(ys), acc));
+    }
+    return iter(xs, null);
+}
+
+const xs = list(1, 2, list(3, 4, 5), 6, 7);
+
+display(every_second_v2(xs));
+display(reverse_m(xs));
+
+function sums(xs) {
+    function iter(ys, is_even, even_sum, odd_sum) {
+        return is_null(ys)
+            ? list(even_sum, odd_sum)
+            : is_even
+                ? iter(tail(xs), false, even_sum + head(xs), odd_sum)
+                : iter(tail(xs), true, even_sum, odd_sum + head(xs));
+    }
+    return iter(xs, true, 0, 0);
+}
+
+
+function sums_recursive(xs) {
+    if (is_null(xs)) {
+        return list(0, 0);
+    } else if (is_null(tail(xs))) {
+        return list(head(xs), 0);
+    } else {
+        const wish = sums_recursive(tail(tail(xs)));
+        return list(head(xs) + head(wish),
+                    head(tail(xs)) + head(tail(wish)));
+    }
+}
+
+function deepReverse(xs) {
+    function iter(ys, acc) {
+        return is_null(ys)
+            ? acc
+            : is_list(head(ys))
+                ? iter(tail(ys), pair(deepReverse(head(ys)), acc))
+                : iter(tail(ys), pair(head(ys), acc));
+    }
+    // do some computation before you call iter
+    return iter(xs, null);
+}
+
+const nl = list(1, list(2, 3, list(4, 5)), 6, 7);
+deepReverse(nl);
+
+
+// SORTED IN ASCENDING ORDER
+function unique(xs) {
+    return is_null(xs) || is_null(tail(xs))
+        ? xs
+        : head(xs) !== head(tail(xs))
+            ? pair(head(xs), unique(tail(xs)))
+            : unique(tail(xs));
+}
+
+function unique_2(xs) {
+    if (is_null(xs) || is_null(tail(xs))) {
+        return xs;
+    } else {
+        const wish = unique(tail(xs));
+        return head(xs) !== head(wish)
+            ? pair(head(xs), wish)
+            : wish;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
