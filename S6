@@ -1,0 +1,131 @@
+// function my_map(f, xs) {
+//     return accumulate((x, ys) => pair(f(x), ys), null, xs);
+// }
+
+// display(my_map(x => x + 1, list(1, 2, 3)));
+
+
+
+// function remove_duplicates(xs) {
+//     return is_null(xs)
+//             ? null 
+//             : pair(head(xs), remove_duplicates(filter(x => x !== head(xs), tail(xs))));
+// }
+
+
+// // display(!is_null(member(3, list(1, 2, 4, 4, 2, 1, 2))));
+// remove_duplicates(list(1, 2, 3, 4, 4, 3, 2, 1, 2));
+
+// function makeup_amount(x, coins) {
+//     if (x === 0) {
+//         return list(null);
+//     } else if (x < 0 || is_null(coins)) {
+//         return null;
+//     } else {
+//     // Combinations that do not use the head coin.
+//         const combi_A = makeup_amount(x, tail(coins));
+//     // Combinations that do not use the head coin
+//     // for the remaining amount.
+//         const combi_B = makeup_amount(x - head(coins), tail(coins));
+//     // Combinations that use the head coin.
+//         const combi_C = map(xs => pair(head(coins), xs), combi_B);
+//         return append(combi_A, combi_C);
+//     }
+// }
+// display_list(makeup_amount(22, list(1, 10, 5, 20, 1, 5, 1, 50)));
+
+
+// function removeDuplicates(xs) {
+//     return accumulate((x, ys) => pair(x, remove_all(x, ys)), null, xs);
+// }
+
+// removeDuplicates(list(1, 2, 3, 4, 4, 3, 2, 1, 2));
+
+function subset(xs) {
+    return is_null(xs) 
+            ? list(null)
+            : append(map(ys => pair(head(xs), ys), subset(tail(xs))), subset(tail(xs))); 
+}
+
+display_list(subset(list(1, 2, 3)));
+
+// function permutations(xs) {
+//     return is_null(xs) 
+//             ? list(null)
+//             : map(ys => pair(head(xs), ys), permutations(tail(ys)));
+// }
+
+display_list(null);
+
+function flatmap(f, seq) {
+    return accumulate(append, null, map(f, seq));
+}
+
+function binary(n) {
+    return n === 1 
+            ? list('0', '1')
+            // : append(flatmap(str => str + '0', binary(n - 1)),
+            // flatmap(str => str + '1', binary(n - 1)));
+            : append(map(str => str + '0', binary(n - 1)), map(str => str + '1', binary(n - 1)));
+}
+
+display_list(binary(2));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
