@@ -1,0 +1,136 @@
+// function assert_equals(output, expected) {
+//     if (output === expected) {
+//         display("PASS!");
+//     } else {
+//         display("FAIL!");
+//     }
+// }
+// // Template code
+// function coin_change(coins, amount) {
+//     // TODO
+//     return -1;
+// }
+
+// // Test cases
+// assert_equals(coin_change([1, 2, 5], 11), 3);
+// assert_equals(coin_change([2], 3), -1);
+// assert_equals(coin_change([1], 0), 0);
+
+// samuel
+// function bubblesort_list_1(L) {
+//     const len = length(L);
+    
+//     for (let i = 0; i < len; i = i + 1) {
+//         let cur = L;
+        
+        
+//         for (let j = 0; j < i; j = j + 1) {
+//             const next = tail(cur);
+            
+//             if (head(cur) > head(next)) {
+//                 const temp = head(cur);
+//                 set_head(cur, head(next));
+//                 set_head(next, temp);
+//             }
+//             cur = tail(cur);
+//         }
+//     }
+//     return L;
+// }   
+
+// //zhetao
+// function bubblesort_list(xs) {
+//     const len = length(xs);
+//     for (let i = 0; i < len - 1; i = i + 1) {
+        
+//         if (is_null(xs) || is_null(tail(xs))) {
+//             continue;
+//         } else {
+//             if (head(xs) > head(tail(xs))) {
+//                 let temp = head(xs);
+//                 set_head(xs, head(tail(xs)));
+//                 set_head(tail(xs), temp);  
+//             }
+//             bubblesort_list(tail(xs));
+//         }
+//     }
+//     return xs;
+// }
+// display(bubblesort_list(list(7,6,5,4)));
+
+// // edwin
+// // path of happiness
+// // golang
+// function bubble(L) {
+//     if (is_null(L) || is_null(tail(L))) {
+//         return L;
+//     }
+//     if (head(L) > head(tail(L))) {
+//         const temp = head(L);
+//         set_head(L, head(tail(L)));
+//         set_head(tail(L), temp);
+//     }
+//     return bubble(tail(L));
+// }
+
+// function bubblesort_list3(L) {
+//     const len = length(L);
+//     for (let i = 0; i < len; i = i + 1) {
+//         bubble(L);
+//     }
+// }
+
+// // edwin
+
+// function memo_fun(fun) {
+//     let already_run = false;
+//     let result = undefined;
+//     function mfun() {
+//         if (!already_run) {
+//             result = fun();
+//             already_run = true;
+//             return result;
+//         } else {
+//             return result;
+//         }
+//     }
+//     return mfun;
+// }
+// function ms(m, s) {
+//     display(m);
+//     return s;
+// }
+
+// function m_integers_from(n) {
+//     return pair(n,
+//             memo_fun(
+//             () => ms("M: " + stringify(n),
+//             m_integers_from(n + 1))));
+// }
+// const m_integers = m_integers_from(1);
+// // stream_ref(m_integers, 0);
+// stream_ref(m_integers, 1);
+// stream_ref(m_integers, 1);
+
+function n_of_n_stream() {
+    function helper(num, count) {
+        if (count > num) {
+            return helper(num + 1, 1);
+        } else {
+            return pair(num, () => helper(num, count + 1));
+        }
+    }
+    return helper(1, 1);
+}
+const st= n_of_n_stream();
+const st2 = pair(1, () => null);
+
+function shorten_stream(s, k) {
+    if (k === 0 || is_null(s)) {
+        return null;
+    } else {
+        return pair(head(s), () => shorten_stream(stream_tail(s), k - 1));
+    }
+}
+stream_to_list(shorten_stream(st2, 7));
+
