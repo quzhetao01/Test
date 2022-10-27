@@ -1,0 +1,41 @@
+function stream_pairs(s) {
+    return is_null(s)
+        ? null
+        : stream_append(stream_map(sn => pair(head(s), sn),
+            stream_tail(s)),
+            stream_pairs(stream_tail(s)));
+}
+
+const non_neg_integers = pair(0, () => stream_map(num => num + 1, non_neg_integers));
+
+// In-class sheet:
+// 1a) All possible pairs of integers
+// 1b) We pair the first element of the stream with the other elements 
+// of the stream. 
+// This step is then done recursively for the tail_stream of input stream
+// We continue step1 and step2 until the input stream is null
+// 1c) Due to applicate-order evaluation, stream_pairs is called without end on 
+// stream_tail(s) where s is infinite, thus there will be an error
+// 1d) stream_pairs2 is lazy, stream_tail(s) will not be evaluated 
+// until stream_append_pickle(...) is evaluated
+// 1e) 
+
+function combine(s1, s2) {
+    if (is_null(s1)) {
+        return s2();
+    } else if (is_null(s2())) {
+        return s1;
+    } else {
+        return pair(head(s1), () => pair(head(s2, () =>
+        combine(stream_tail(s1), stream_tail(s2)))));
+    }
+}
+
+function stream_pairs2(s) {
+    return is_null(s)
+            ? null
+            : combine(stream_map(sn => pair(head(s), sn), stream_tail(s)),
+                () => stream_pairs2(stream_tail(s)));
+}
+const y = enum_stream(1, 10);
+eval_stream(stream_pairs2(y), 15);
