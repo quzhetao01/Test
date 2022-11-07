@@ -1,0 +1,236 @@
+function is_nucleobase(str) {
+    return str === 'A' || str === 'C' || str === 'G' || str === 'T';
+}
+
+is_nucleobase('B');
+
+function is_dna_strand(xs) {
+    return accumulate((elem, bool) => is_nucleobase(elem) && bool, true, xs);
+}
+
+is_dna_strand(list('A', 'G', 'B'));
+
+function combine(xs) {
+    return accumulate(append, null, xs);
+}
+
+combine(list(list("G"), list("T"), 
+ list("C", "A", "A", "A"), list("G")));
+
+function oxoguanine_repair(strand) {
+    return map(elem => elem === "8" ? 'G' : elem, strand);
+}
+
+oxoguanine_repair(
+ list("A", "8", "A", "8", "C", "T", "A", "C"));
+ 
+function find_gene_start(strand) {
+    if (is_null(strand) || is_null(tail(strand)) || is_null(tail(tail(strand)))) {
+        return null;
+    }
+    
+    const first = head(strand);
+    const second = head(tail(strand));
+    const third = head(tail(tail(strand)));
+    const start = first === 'A' && second === 'T' && third === 'G';
+    return start ? list(tail(tail(tail(strand)))) : find_gene_start(tail(strand));
+}
+
+find_gene_start(list("A", "T", "A", "G", "T", "A", "C", "G"));
+
+function find_gene_end(strand) {
+    function detect(strand) {
+        const first = head(strand);
+        const second = head(tail(strand));
+        const third = head(tail(tail(strand)));
+        return first === 'T' && ((second === "A" && third === "G") ||
+                                 (second === "A" && third === "A") ||
+                                 (second === "G" && third === "A"));
+    }
+    
+    function helper(strand, acc) {
+        if (is_null(strand) || is_null(tail(strand)) || is_null(tail(tail(strand)))) {
+            return null;
+        } else if (detect(strand)) {
+            return list(reverse(acc));
+        } else {
+            return helper(tail(strand), pair(head(strand), acc));
+        }
+    }
+    return helper(strand, null);
+}
+
+find_gene_end(list("A", "T", "A", "C", "C", "A", "G",
+ "A", "T"));
+// returns list(list("A", "T", "A", "C"))
+
+function all_genes(strand) {
+    const start = find_gene_start(strand);
+    if (is_null(start)) {
+        return null;
+    }
+    const gene = find_gene_end(head(start));
+    return append(gene, all_genes(head(start)));
+}
+
+all_genes(list("T", "A", "T", "G", "C", "A", "T",
+ "A", "A", "G", "T", "A", "G", "A",
+ "T", "G", "A", "T", "G", "A", "T"));
+ 
+// **************************************************************************
+
+function all_different(nums) {
+    function merge_sort(xs) {
+        if (is_null(xs) || is_null(tail(xs))) {
+            return xs;
+        } else {
+            const mid = math_floor(length(xs) / 2);
+            return merge(merge_sort(take(xs, mid)),
+            merge_sort(drop(xs, mid)));
+        }
+    }
+    function merge(xs, ys) {
+        if (is_null(xs)) {
+            return ys;
+        } else if (is_null(ys)) {
+            return xs;
+        } else {
+            const x = head(xs);
+            const y = head(ys);
+            return x < y
+                ? pair(x, merge(tail(xs), ys))
+                :pair(y, merge(xs, tail(ys)));
+        }
+    }
+    function take(xs, n) {
+        return n === 0
+            ? null
+            : pair(head(xs), take(tail(xs), n - 1));
+    }
+    function drop(xs, n) {
+        return n === 0
+            ? xs
+            : drop(tail(xs), n - 1);
+    }
+    
+    const sorted = merge_sort(nums);
+    function check_duplicate(xs) {
+        if (is_null(xs) || is_null(tail(xs))) {
+            return true;
+        } else {
+            return head(xs) !== (head(tail(xs))) && check_duplicate(tail(xs));
+        }
+    }
+    return check_duplicate(sorted);
+}
+
+all_different(list(2, 5, 1, 6, 7, 4, 3));
+all_different(list(23));
+all_different(list(2, 6, 1, 7, 6, 4, 3));
+
+function is_valid_toto_set(nums, n, min, max) {
+    if (length(nums) !== n) {
+        return false;
+    }
+    const firstCheck = accumulate((x, y) => x >= min && y, true, nums);
+    const secondCheck = accumulate((x, y) => x <= max && y, true, nums);
+    return firstCheck && secondCheck && all_different(nums);
+}
+
+const nums = list(25, 13, 2, 31, 30, 3, 15);
+const n = 7;
+const min = 3;
+const max = 30; 
+is_valid_toto_set(nums, n, min, max);
+// returns false
+// Reason: the element 2 of nums is smaller than min.
+
+function num_of_matches(numsA, numsB) {
+    function find_match(num, xs) {
+        if (is_null(xs)) {
+            return false;
+        }
+        return num === head(xs) || find_match(num, tail(xs));
+    }
+    if (is_null(numsA)) {
+        return 0;
+    }
+    if (find_match(head(numsA), numsB)) {
+        return 1 + num_of_matches(tail(numsA), numsB);
+    } else {
+        return num_of_matches(tail(numsA), numsB);
+    }
+
+}
+
+const numsA = list(23, 21);
+const numsB = list(5, 4, 7);
+num_of_matches(numsA, numsB);
+
+function check_winning_group(bet_nums, draw_nums, extra_num) {
+    const n = length(draw_nums);
+    const matches = num_of_matches(bet_nums, draw_nums);
+    const extra = num_of_matches(list(extra_num), bet_nums);
+    if (matches === n) {
+        return 1;
+    } else if (matches === n - 1) {
+        return extra === 1 ? 2 : 3;
+    } else if (matches === n - 2) {
+        return extra === 1 ? 4 : 5;
+    } else {
+        return 0;
+    }
+}
+
+const bet_nums = list(40, 30, 1, 49, 27, 15);
+const draw_nums = list(23, 1, 30, 15, 40, 49);
+const extra_num = 27;
+check_winning_group(bet_nums, draw_nums, extra_num);
+// returns 2
+
+// ****************************************************************
+function evaluate_BAE_tree(bae_tree) {
+    if (!is_list(bae_tree)) {
+        return bae_tree;
+    }
+    const op = list_ref(bae_tree, 1);
+    const first = evaluate_BAE_tree(head(bae_tree));
+    const second = evaluate_BAE_tree(list_ref(bae_tree, 2));
+    return op === '+'
+        ? first + second
+        : op === '-'
+        ? first - second
+        : op === '*'
+        ? first * second
+        : first / second;
+}
+
+const bae_tree = list( list(2, "+", 5), "*", 100 );
+evaluate_BAE_tree(bae_tree);
+// returns 700
+
+function check_parentheses(paren_list) {
+    let leftCount = 0;
+    let rightCount = 0;
+    function helper(xs) {
+        if (is_null(xs)) {
+            return true;
+        }
+        if (rightCount > leftCount) {
+            return false;
+        } else if (head(xs) === '(') {
+            leftCount = leftCount + 1;
+            return helper(tail(xs));
+        } else {
+            rightCount = rightCount + 1;
+            return helper(tail(xs));
+        }
+    }
+    const valid = helper(paren_list);
+    return leftCount === rightCount && valid;
+}
+
+const paren_list = list("(", "(", ")", "(");
+check_parentheses(paren_list);
+
+// returns true
