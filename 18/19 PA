@@ -1,0 +1,255 @@
+
+function big_int_from_number(num) {
+    function helper(acc, num) {
+        if (num === 0) {
+            return reverse(acc);
+        }
+        const val = num % 10;
+        return helper(pair(val, acc), math_floor(num / 10));
+    }
+    return num === 0 ? list(0) : helper(null, num);
+}
+
+big_int_from_number(4321);
+
+function big_int_to_string(bint) {
+    return accumulate((x, y) => y + stringify(x),'', bint);
+}
+big_int_to_string(list(0, 0, 3, 2, 1, 8, 8, 8));
+
+function big_int_add(bintX, bintY) {
+    function helper(xs, ys, extra) {
+        if (is_null(xs) && is_null(ys) && extra) {
+            return list(1);
+        }
+        if (is_null(xs)) {
+            return extra ? helper(list(1), ys, false) : ys;
+        } else if (is_null(ys)) {
+            return extra ? helper(xs, list(1), false) : xs;
+        } else {
+            let temp = extra ? 1 : 0;
+            let value = head(ys) + head(xs) + temp;
+            if (value < 10) {
+                return pair(value, helper(tail(xs), tail(ys), false));
+            } else {
+                value = value - 10;
+                return pair(value, helper(tail(xs), tail(ys), true));
+            }
+        }
+    }
+    return helper(bintX, bintY, false);
+}
+
+big_int_add(list(7, 8, 9), list(5, 6));
+big_int_add(list(9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9), list(5));
+
+function big_int_mult_by_digit(bint, digit) {
+    function helper(xs, extra) {
+        if (is_null(xs) && extra !== 0) {
+            return list(extra);
+        } else if (is_null(xs)) {
+            return null;
+        } else {
+            let value = head(xs) * digit + extra;
+            let remainder = math_floor(value / 10);
+            value = value % 10;
+            return pair(value, helper(tail(xs), remainder));
+        }
+    }
+    if ((head(bint) === 0 && is_null(bint)) || digit === 0) {
+        return list(0);
+    } else {
+        return helper(bint, 0);
+        
+    }
+
+}
+big_int_mult_by_digit(list(7, 4, 3), 5);
+big_int_mult_by_digit(list(7, 4, 3), 0);
+big_int_mult_by_digit(list(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,9), 3);
+
+// returns list(0)
+
+function big_int_mult_by_10_pow_n(bint, n) {
+    if ((head(bint) === 0 && is_null(bint))) {
+        return bint;
+    } else if (n === 0) {
+        return bint;
+    } else {
+        return pair(0, big_int_mult_by_10_pow_n(bint, n - 1));
+    }
+}
+big_int_mult_by_10_pow_n(list(7, 4, 3), 3);
+// returns list(0, 0, 0, 7, 4, 3) 
+big_int_mult_by_10_pow_n(list(7, 4, 3), 0);
+// returns list(7, 4, 3) 
+big_int_mult_by_10_pow_n(list(7, 4, 3), 20);
+// returns list(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,4,3)
+
+function big_int_mult(bintX, bintY) {
+    const shorter = length(bintX) < length(bintY) ? bintX : bintY;
+    const longer = length(bintX) < length(bintY) ? bintY : bintX;
+    function helper(long, short) {
+        if (is_null(short)) {
+            return list(0);
+        }
+        const value = big_int_mult_by_digit(longer, head(short));
+        return big_int_add(value, 
+        big_int_mult_by_digit(helper(long, tail(short)),10));
+    }
+    return helper(longer, shorter);
+}
+big_int_mult(list(9), list(6));
+// returns list(4, 5) 
+big_int_mult(list(0), list(3, 2, 1));
+// returns list(0) 
+big_int_mult(list(7, 8, 9), list(5, 6));
+// returns list(5, 5, 1, 4, 6) 
+big_int_mult(list(1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1), list(7,8,9));
+// returns list(7,8,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,8,9)
+
+// ****************************************************************
+
+function swap(A, i, j) {
+    const temp = A[i];
+    A[i] = A[j];
+    A[j] = temp;
+}
+//---------------------------------------------------------------
+function copy_array(A) {
+    const len = array_length(A);
+    const B = [];
+    for (let i = 0; i < len; i = i + 1) {
+        B[i] = A[i];
+    }
+    return B;
+}
+//---------------------------------------------------------------
+function reverse_array(A) {
+    const len = array_length(A);
+    const half_len = math_floor(len / 2);
+    for (let i = 0; i < half_len; i = i + 1) {
+        swap(A, i, len - 1 - i);
+    }
+}
+//---------------------------------------------------------------
+function array_to_list(A) {
+    const len = array_length(A);
+    let L = null;
+    for (let i = len - 1; i >= 0; i = i - 1) {
+        L = pair(A[i], L);
+    }
+    return L;
+}
+//---------------------------------------------------------------
+function list_to_array(L) {
+    const A = [];
+    let i = 0;
+    for (let p = L; !is_null(p); p = tail(p)) {
+        A[i] = head(p);
+        i = i + 1;
+    }
+    return A;
+}
+//---------------------------------------------------------------
+// Sorts the array of numbers in ascending order.
+function sort_ascending(A) {
+    const len = array_length(A);
+    for (let i = 1; i < len; i = i + 1) {
+        const x = A[i];
+        let j = i - 1;
+        while (j >= 0 && A[j] > x) {
+            A[j + 1] = A[j];
+            j = j - 1;
+        }
+        A[j + 1] = x;
+    }
+}
+//---------------------------------------------------------------
+function digits_to_string(digits) {
+    const len = array_length(digits);
+    let str = "";
+    for (let i = 0; i < len; i = i + 1) {
+        str = str + stringify(digits[i]);
+    }
+    return str;
+}
+
+function build_largest_int(digits) {
+    sort_ascending(digits);
+    reverse_array(digits);
+    return digits_to_string(digits);
+}
+build_largest_int([4, 1, 9, 4, 1]);
+
+function build_2nd_largest_int(digits) {
+    const len = array_length(digits);
+    build_largest_int(digits);
+    for (let i = len - 1; i > 0 ; i = i - 1) {
+        if (digits[i] >= digits[i - 1]) {
+            continue;
+        } else {
+            swap(digits, i, i - 1);
+            break;
+        }
+    }
+    return digits_to_string(digits);
+}
+
+build_2nd_largest_int([5, 5, 5]);
+
+function build_nth_largest_int(digits, n) {
+    
+}
+
+function count_lower_neighbors(emap, r, c) {
+    const rows = array_length(emap);
+    const cols = array_length(emap[0]);
+    
+    if (r <= 0 || r >= rows - 1 || c <= 0 || c >= cols - 1) {
+        return 0;
+    } else {
+        let count = 0;
+        const value = emap[r][c];
+        for (let i = r - 1; i < r + 2; i = i + 1) {
+            for (let j = c - 1; j < c + 2; j = j + 1) {
+                if (emap[i][j] < value) {
+                    count = count + 1;
+                } else {
+                    continue;
+                }
+            }
+        }
+        return count;
+        
+    }
+    
+}
+const emap = [[3, 1, 1, 1, 1, 1, 1],
+ [1, 1, 1, 1, 2, 3, 1],
+ [1, 0, 3, 2, 1, 1, 0],
+ [1, 1, 1, 1, 3, 1, 1],
+ [1, 2, 1, 1, 3, 1, 3],
+ [1, 1, 1, 1, 4, 1, 1]];
+count_lower_neighbors(emap, 0, 0); // returns 0
+count_lower_neighbors(emap, 5, 4); // returns 8
+
+
+function count_peaks(emap) {
+    const rows = array_length(emap);
+    const cols = array_length(emap[0]);
+    let count = 0;
+    for (let i = 0; i < rows; i = i + 1) {
+        for (let j = 0; j < cols; j = j + 1) {
+            const lower = count_lower_neighbors(emap, i, j);
+            if (lower === 8) {
+                count = count + 1;
+            }
+            
+        }
+    }
+    return count;
+}
+count_peaks(emap);
+
+function count_islands()
