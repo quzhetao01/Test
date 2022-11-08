@@ -1,0 +1,1097 @@
+// Jotham 
+// samuel
+// Edwin
+// Tao
+// stephen
+// xp
+// gabriel 
+// darren
+// laksh
+
+// Answer key for studio 13
+
+function naivePadovan(n) {
+    return n <= 2 ? 1 
+                  : naivePadovan(n-2) + naivePadovan(n-3); 
+}
+
+function padovan(n) {
+    
+    function iter(n_plus_2, n_plus_1, n, count) {
+        return count === 0
+            ? n
+            : iter(n_plus_1 + n, n_plus_2, n_plus_1, count - 1);
+    }
+    return iter(1, 1, 1, n);
+}
+
+function mempadovan(n) {
+    let mem = [];
+    function padovan(k) {
+        if (mem[k] !== undefined) {
+            return mem[k];
+        } else {
+            const result = k <= 2 
+                           ? 1
+                           : padovan(k - 2) + padovan(k - 3);
+            mem[k] = result;
+            return result;
+        }
+    }
+    return padovan(n);
+}
+
+function memPadovan() {
+    let array = [];
+    function helper(k) {
+        
+    }
+    return helper;
+}
+
+const f = memPadovan();
+
+function padovanStreamGen(a, b, c, d) {
+    return pair(a, () => padovanStreamGen(b, c, a + b, a + b));
+}
+
+const padovanStream = padovanStreamGen(1, 1, 1, 1);
+
+eval_stream(padovanStream, 8);
+
+function stream_map_2(f,s1,s2){
+    if(is_null(s1) || is_null(s2)){
+        return null;
+    }else{
+        return pair(f(head(s1), head(s2)), 
+                    () => stream_map_2(f, stream_tail(s1), stream_tail(s2)));
+    }
+}
+
+
+function mul_streams(s1,s2){
+    return stream_map_2((x1,x2) => x1 * x2, s1, s2);
+}
+function memo_fun(fun) {
+    let already_run = false;
+    let result = undefined;
+    function mfun() {
+        if (!already_run) {
+            result = fun();
+            already_run = true;
+            return result;
+        } else {
+            return result;
+        }
+    }
+    return mfun;
+}
+const padovan_stream2 = pair(1, 
+                            memo_fun(() => pair(1,
+                                                () => pair(1,
+                                                           () => add_streams(padovan_stream2,
+                                                                             stream_tail(padovan_stream2))))));
+
+
+function memo(fun) {
+    let already_run = false;
+    let result = undefined;
+    return () => {
+                if (!already_run) {
+                    result = fun();
+                    already_run = true;
+                    return result;
+                } else {
+                    return result;
+                }
+            };
+}
+
+function double_stream_map(f, s1, s2) {
+    return is_null(s1) && is_null(s2)
+        ? null
+        : pair(f(head(s1), head(s2)),
+               memo(() => double_stream_map(f, stream_tail(s1), stream_tail(s2))));
+}
+
+function add_streams(s1, s2) {
+    return double_stream_map((x, y) => x + y, s1, s2);
+}
+const padoSequence = pair(1, 
+                          () =>
+                             pair(1,
+                                  () =>
+                                     pair(1,
+                                          () => add_streams(padoSequence,
+                                                            stream_tail(padoSequence)))));
+// display(eval_stream(padoSequence, 14));
+
+function isPadovanNumber(n) {
+    function helper(count, st) {
+        if (n === head(st)) {
+            return true;
+        } else if (n < head(st) || count === 0) {
+            return false;
+        } else {
+            return helper(count - 1, stream_tail(st));
+        }
+    }
+    return helper(100, padovanStream);
+}
+isPadovanNumber(7);
+
+
+
+// function isPadovanNumber(n) {
+//     function search(low, high) {
+//         const mid = math_floor(low + (high - low) / 2);
+//         return low > high
+//               ? false
+//               : n === stream_ref(padovanStream, mid)
+//               ? true
+//               : n < stream_ref(padovanStream, mid)
+//               ? search(low, mid - 1)
+//               : search(mid + 1, high);
+//     }
+//     return search(0, 100);
+// }
+
+function stream_to_array(s, n) {
+    let res = [];
+    for (let i = 0; i < n; i = i + 1) {
+        res[i] = head(s);
+        s = stream_tail(s);
+    }
+    return res;
+}
+
+function binary_search(A, v) {
+    function search(low, high) {
+        if (low > high) {
+            return false;
+        } else {
+            const mid = math_floor(low + (high - low) / 2);
+            return v === A[mid] || 
+                   (v < A[mid] 
+                    ? search(low, mid - 1) 
+                    : search(mid + 1, high));
+        }
+    }
+    return search(0, array_length(A) - 1);
+}
+
+// Assumption: mempadovan(n) O(1)
+// function isPadovanNumber(n) {
+//     const first_100_padovan = stream_to_array(make_padovanStream(), 100);
+//     return binary_search(first_100_padovan, n);
+// }
+
+// 1. Determine higher
+//          2 * 2 * 2 * 2 * 2 * 2 * 2 = i-th
+//  . determine the upper bound in logn
+// 2. Binary search(1. higher???????)
+
+// 104th padovan number
+// 2 * 2 * 2 * 2 * 2 * 2
+
+function createSequence(f, xs) {
+    const mem = [];
+    
+    function memo_seq(n) {
+        if (mem[n] !== undefined) {
+            return mem[n];
+        } else {
+            const starting_len = length(xs);
+            const result = n < starting_len
+                            ? list_ref(xs, n)
+                            : f(memo_seq, n);
+            mem[n] = result;
+            return result;
+        }
+    }
+    return memo_seq;
+}
+
+
+function mem_f() {
+    const mem = [];
+    function helper(k) {
+        
+    }
+    return helper;
+}
+
+const pad = createSequence((f, n) => f(n - 2) + f(n - 3),
+                            list(1, 1, 1));
+                            
+                            pad(8);
+
+function combineSequences(xs, comb){
+    const combseq = accumulate((x,y) => is_null(y) ? x : comb(x,y), null, xs);
+    return combseq;
+}
+
+// const factorialPlusFibo = combineSequence(
+//     list(factorial, fibo),
+//     (f, g) => n => f(n) + g(n));
+
+// const mulSeq = combineSequences(
+//     list(padovanNumbers, fibo, factorial),
+//     (f, g) => n => f(n) * g(n)
+// );
+
+// const comb = (f, g) => n => f(n) * g(n);
+// const seqs = list(padovanNumbers, fibo, factorial);
+// comb(padovanNumbers, comb(fibo, comb(factorial, null)));
+// padovan(n) * fibo(n) * factorial(n);
+
+// const compose = combineSequences(
+//     list(fibo, padovanNumbers),
+//     (f, g) => n => f(g(n)) 
+// );
+
+
+function evenTriangular(n) {
+    const is_even = x => x % 2 === 0;
+    const triangular_stream = stream_map(x => x * (x + 1) / 2,
+                                         integers_from(1));
+    const even_triangular_stream = stream_filter(is_even, triangular_stream);
+    return eval_stream(even_triangular_stream, n);
+}
+
+function shorten_stream(s, k) {
+    function helper(count,stream){
+        if(is_null(stream) || count === k){
+            return null;
+        }else{
+            while(count < k){
+                return pair(head(stream), () => helper(count+1,
+                                                    stream_tail(stream)));
+            }
+        }
+    }
+    return helper(0,s);
+}
+
+// function evenTriangular(n) {
+//     function helper(k){
+//         return pair((k * (k + 1)) / 2 , () => helper(k + 1));
+//     }
+//     const eventrianglenum = stream_filter(x => x % 2 === 0, helper(1));
+//     return shorten_stream(eventrianglenum, n);
+// }
+// stream_ref(evenTriangular(10),9);
+
+
+function perfectNumbers() {
+    // function sum_divisors(n, count) {
+    //     return n === count
+    //           ? 0
+    //           : n % count === 0
+    //           ? count + sum_divisors(n, count + 1)
+    //           : sum_divisors(n, count + 1);
+    // }
+    // returns sum of divisors of n
+    function sum_divisors(n, count) {
+        return count * count > n
+              ? 0
+              : n % count === 0 // count is divisor
+                    ? n === count * count // count is unique divisor
+                        ? count + sum_divisors(n, count + 1)
+                        : count + n / count + sum_divisors(n, count + 1)
+              : sum_divisors(n, count + 1);
+    } 
+    
+    function stream(n) {
+        return n === sum_divisors(n, 1)
+           ? pair(n, () => stream(n + 1))
+           : stream(n + 1);
+    }
+    
+    return stream(1);
+}
+
+// eval_stream(perfectNumbers(), 2);
+
+
+
+
+function sum_divisors(n, count) {
+        return count * count > n
+              ? 0
+              : n % count === 0 // count is divisor
+                    ? n === count * count // count is unique divisor
+                        ? count + sum_divisors(n, count + 1)
+                        : count + n / count + sum_divisors(n, count + 1)
+              : sum_divisors(n, count + 1);
+    } 
+
+sum_divisors(6, 1);
+
+////////////////////////////////////////////////////////////
+// MCE QUESTION3
+////////////////////////////////////////////////////////////
+
+// Calculator language 
+// * Adding booleans, conditionals, and sequences 
+// * Adding blocks and declarations
+// * Adding compound functions
+
+// Manually added return statements and assignments because
+// why the hell wouldn't an evaluator have those
+
+//
+// evaluation
+//
+
+function evaluate(component, env) {
+   return is_literal(component)
+          ? literal_value(component)
+          : is_name(component)
+          ? lookup_symbol_value(symbol_of_name(component), env)
+          : is_application(component)
+          // we need to modify how 'apply' is carried out
+          // similar to normal order evaluation, we call 'apply' with
+          // the argument expressions without evaluating them first
+          ? apply(actual_value(function_expression(component), env),
+                  arg_expressions(component), env)
+          : is_operator_combination(component)
+          ? evaluate(operator_combination_to_application(component), env)
+          : is_conditional(component)
+          ? eval_conditional(component, env)
+          : is_lambda_expression(component)
+          ? make_function(lambda_parameter_symbols(component),
+                          lambda_body(component), env)
+          : is_sequence(component)
+          ? eval_sequence(sequence_statements(component), env)
+          : is_block(component)
+          ? eval_block(component, env)
+          : is_return_statement(component)
+          ? eval_return_statement(component, env)
+          : is_function_declaration(component)
+          ? evaluate(function_decl_to_constant_decl(component), env)
+          : is_declaration(component)
+          ? eval_declaration(component, env)
+          : is_assignment(component)
+          ? eval_assignment(component, env)
+          : error(component, "unknown syntax -- evaluate");
+}
+
+/*
+From Textbook:
+'thunks' allow us to store the expression and environment of
+function applications, thereby delaying the evaluation of the expressions
+in the thunk until we cannot delay the evaluation any further (eg, a primitive
+function is called)
+To 'force' a thunk, we extract the expression and environment of the thunk
+and evaluate that expression inside that environment.
+*/
+
+// Thunk selectors and constructors
+function delay_it(exp, env) {	
+    return list("thunk", exp, env);
+}
+function is_thunk(obj) {    
+    return is_tagged_list(obj, "thunk");
+}
+function thunk_exp(thunk) { return head(tail(thunk)); }
+
+function thunk_env(thunk) { return head(tail(tail(thunk))); }
+
+function is_evaluated_thunk(obj) {
+    return is_tagged_list(obj, "evaluated_thunk");
+}
+function thunk_value(evaluated_thunk) { 
+    return head(tail(evaluated_thunk));
+}
+
+
+// extracting the contents of a thunk and evaluating them
+function force_it(obj) {
+    // 'force_it' ensures that if the expression is itself a thunk
+    // we will force that, an so on until we reach something that
+    // is not a thunk
+    
+    // thunks are also memoized so they only have to be evaluated once
+    if (is_thunk(obj)) {
+        const result = actual_value(thunk_exp(obj), thunk_env(obj));
+        
+        // highlights that the thunk has been evaluated at least once
+        set_head(obj, "evaluated_thunk");
+        
+        // same principle as function memoization
+        // if a thunk has been evaluated once, we store the result
+        // as the tail of the thunk object
+        // we can just return the result that is stored
+        set_head(tail(obj), result);
+        
+        // once we have evaluated the thunk once, the environment of the
+        // thunk no longer has any use and can be discarded
+        set_tail(tail(obj), null);
+        
+        return result;	
+    } else if (is_evaluated_thunk(obj)) {
+        return thunk_value(obj);
+    } else {
+        // if the object being forced is not a thunk, then we just return it
+        return obj;
+    }
+}
+
+// 'actual_value' either evaluates an expression, or forces a thunk
+// (if 'exp' is a thunk)
+function actual_value(exp, env) {
+  return force_it(evaluate(exp, env));
+}
+
+// For lazy evaluation, we also need to modify how conditionals
+// are evaluated
+function eval_conditional(component, env) {	
+    // eval_conditional uses 'actual_value' instead of 'evaluate'
+    // to retrieve the value of the predicate expression
+    // to prevent evaluating the consequent/alternativate before
+    // they are needed
+  return is_truthy(actual_value(conditional_predicate(component), env))
+         ? evaluate(conditional_consequent(component), env)
+         : evaluate(conditional_alternative(component), env);
+}
+
+function eval_sequence(stmts, env) {
+    if (is_empty_sequence(stmts)) {
+        return undefined;
+    } else if (is_last_statement(stmts)) {
+        return evaluate(first_statement(stmts), env);
+    } else {
+        const first_stmt_value = 
+            evaluate(first_statement(stmts), env);
+        if (is_return_value(first_stmt_value)) {
+            return first_stmt_value;
+        } else {
+            return eval_sequence(rest_statements(stmts), env);
+        }
+    }
+}
+
+function scan_out_declarations(component) {
+    return is_sequence(component)
+           ? accumulate(append,
+                        null,
+                        map(scan_out_declarations,
+                            sequence_statements(component)))
+           : is_declaration(component)
+           ? list(declaration_symbol(component))
+           : null;
+}
+
+function eval_block(component, env) {
+    const body = block_body(component);
+    const locals = scan_out_declarations(body);
+    const unassigneds = list_of_unassigned(locals);
+    return evaluate(body, extend_environment(locals,
+                                             unassigneds, 
+                                             env));
+}
+
+function list_of_unassigned(symbols) {
+    return map(symbol => "*unassigned*", symbols);
+}
+
+function eval_return_statement(component, env) {
+    return make_return_value(evaluate(return_expression(component),
+                                      env));
+}
+
+function eval_assignment(component, env) {
+    const value = evaluate(assignment_value_expression(component),
+                           env);
+    assign_symbol_value(assignment_symbol(component), value, env);
+    return value;
+}
+
+function eval_declaration(component, env) {
+    assign_symbol_value(
+        declaration_symbol(component), 
+        evaluate(declaration_value_expression(component), env),
+        env);
+  return undefined;
+}
+
+function list_of_values(exprs, env) {
+    return map( comp => evaluate(comp, env), exprs); 
+}
+
+
+/*
+From Textbook:
+When applying compound functions, we delay the evaluation
+of arguments before applying the function.
+
+For primitive functions however, we have to evaluate the arguments
+before applying the primitive.
+(We can't delay the evaluation of the expression any further)
+*/
+
+function list_of_arg_values(exps, env) {	
+  return map(exp => actual_value(exp, env), exps);
+}
+function list_of_delayed_args(exps, env) {	
+  return map(exp => delay_it(exp, env), exps);
+}
+
+function apply(fun, args, env) {
+  if (is_primitive_function(fun)) {
+      return apply_primitive_function(
+                 fun, 
+                 list_of_arg_values(args, env));              // changed
+  } else if (is_compound_function(fun)) {
+      const result = evaluate(
+                         function_body(fun),
+                         extend_environment(
+                             function_parameters(fun),
+                             list_of_delayed_args(args, env), // changed
+                         function_environment(fun)));
+      return is_return_value(result)
+             ? return_value_content(result)
+             : undefined;
+  } else {
+      error(fun, "unknown function type -- apply");
+  }
+}
+
+//
+// syntax functions
+//
+
+// literals
+
+function is_literal(component) {
+    return is_tagged_list(component, "literal");
+}
+function literal_value(component) {    
+    return head(tail(component));
+}
+
+function is_tagged_list(component, the_tag) {
+    return is_pair(component) && head(component) === the_tag;
+}
+
+// operator combinations
+
+function is_operator_combination(component) {	    
+    return is_unary_operator_combination(component) ||
+           is_binary_operator_combination(component);
+}
+function is_binary_operator_combination(component) {	    
+    return is_tagged_list(component, "binary_operator_combination");
+}
+function is_unary_operator_combination(component) {	    
+    return is_tagged_list(component, "unary_operator_combination");
+}
+function operator_symbol(component) {
+    return list_ref(component, 1);
+}
+function first_operand(component) {
+    return list_ref(component, 2);
+}
+function second_operand(component) {
+    return list_ref(component, 3);
+}
+
+function operator_combination_to_application(component) {
+    const operator = operator_symbol(component);
+    return is_unary_operator_combination(component)
+           ? make_application(make_name(operator),
+                              list(first_operand(component)))
+           : make_application(make_name(operator),
+                              list(first_operand(component),
+                                   second_operand(component)));
+}
+
+// conditionals
+
+function is_conditional(component) {
+    return is_tagged_list(component, "conditional_expression") ||
+           is_tagged_list(component, "conditional_statement");
+}
+function conditional_predicate(component) {
+   return list_ref(component, 1);
+}
+function conditional_consequent(component) {
+   return list_ref(component, 2);
+}
+function conditional_alternative(component) {
+   return list_ref(component, 3);
+}
+
+// sequences
+
+function is_sequence(stmt) {
+   return is_tagged_list(stmt, "sequence");
+}
+function sequence_statements(stmt) {   
+   return head(tail(stmt));
+}
+function first_statement(stmts) {
+   return head(stmts);
+}
+function rest_statements(stmts) {
+   return tail(stmts);
+}
+function is_empty_sequence(stmts) {
+   return is_null(stmts);
+}
+function is_last_statement(stmts) {
+   return is_null(tail(stmts));
+}
+
+// names
+
+function is_name(component) {
+    return is_tagged_list(component, "name");
+}
+
+function symbol_of_name(component) {
+    return head(tail(component));
+}
+
+function make_name(symbol) {
+    return list("name", symbol);
+}
+
+// blocks
+
+function is_block(component) {
+    return is_tagged_list(component, "block");
+}
+function block_body(component) {
+    return head(tail(component));
+}
+function make_block(statement) {
+    return list("block", statement);
+}
+
+// declarations
+
+function is_declaration(component) {
+    return is_tagged_list(component, "constant_declaration") ||
+           is_tagged_list(component, "function_declaration") ||
+           is_tagged_list(component, "variable_declaration");
+}
+function declaration_symbol(component) {
+    return symbol_of_name(head(tail(component)));
+}
+function declaration_value_expression(component) {
+    return head(tail(tail(component)));
+}
+function make_constant_declaration(name, value_expression) {
+    return list("constant_declaration", name, value_expression);
+}
+
+// assignments
+
+function is_assignment(component) {
+    return is_tagged_list(component, "assignment");
+}
+function assignment_symbol(component) {
+    return head(tail(head(tail(component))));
+}
+function assignment_value_expression(component) {
+    return head(tail(tail(component)));
+}
+
+// application
+
+function is_application(component) {
+   return is_tagged_list(component, "application");
+}
+function function_expression(component) {
+   return head(tail(component));
+}
+function arg_expressions(component) {
+   return head(tail(tail(component)));
+}
+
+function make_application(function_expression, argument_expressions) {
+    return list("application",
+                function_expression, argument_expressions);
+}
+
+// lambda expressions
+
+function is_lambda_expression(component) {
+    return is_tagged_list(component, "lambda_expression");
+}
+function lambda_parameter_symbols(component) {
+    return map(symbol_of_name, head(tail(component)));
+}
+function lambda_body(component) {
+    return head(tail(tail(component)));
+}
+
+function make_lambda_expression(parameters, body) {
+    return list("lambda_expression", parameters, body);
+}
+
+// function declaration
+
+function is_function_declaration(component) {	    
+    return is_tagged_list(component, "function_declaration");
+}
+function function_declaration_name(component) {
+    return list_ref(component, 1);
+}
+function function_declaration_parameters(component) {
+    return list_ref(component, 2);
+}
+function function_declaration_body(component) {
+    return list_ref(component, 3);
+}
+function function_decl_to_constant_decl(component) {
+    return make_constant_declaration(
+               function_declaration_name(component),
+               make_lambda_expression(
+                   function_declaration_parameters(component),
+                   function_declaration_body(component)));
+}
+
+// return statements
+
+function is_return_statement(component) {
+   return is_tagged_list(component, "return_statement");
+}
+function return_expression(component) {
+   return head(tail(component));
+}
+
+function make_return_value(content) {
+    return list("return_value", content);
+}
+function is_return_value(value) {
+    return is_tagged_list(value, "return_value");
+}
+function return_value_content(value) {
+    return head(tail(value));
+}
+
+//
+// support functions
+//
+
+// conditionals
+
+function is_truthy(x) {
+    return is_boolean(x) 
+           ? x
+           : error(x, "boolean expected, received");
+}
+
+// environments
+
+function enclosing_environment(env) { return tail(env); }
+
+function first_frame(env) { return head(env); }
+
+const the_empty_environment = null;
+
+function make_frame(symbols, values) { return pair(symbols, values); }
+
+function frame_symbols(frame) { return head(frame); }
+
+function frame_values(frame) { return tail(frame); }
+
+function extend_environment(symbols, vals, base_env) {
+    return length(symbols) === length(vals)
+           ? pair(make_frame(symbols, vals), base_env)
+           : length(symbols) < length(vals)
+           ? error("too many arguments supplied: " + 
+                   stringify(symbols) + ", " + 
+                   stringify(vals))
+           : error("too few arguments supplied: " + 
+                   stringify(symbols) + ", " + 
+                   stringify(vals));
+}
+
+function lookup_symbol_value(symbol, env) {
+    function env_loop(env) {
+        function scan(symbols, vals) {
+            return is_null(symbols)
+                   ? env_loop(enclosing_environment(env))
+                   : symbol === head(symbols)
+                   ? head(vals)
+                   : scan(tail(symbols), tail(vals));
+        }
+        if (env === the_empty_environment) {
+            error(symbol, "unbound name");
+        } else {
+            const frame = first_frame(env);
+            return scan(frame_symbols(frame), frame_values(frame));
+        }
+    }
+    return env_loop(env);
+}
+
+function assign_symbol_value(symbol, val, env) {
+    function env_loop(env) {
+        function scan(symbols, vals) {
+            return is_null(symbols)
+                   ? env_loop(enclosing_environment(env))
+                   : symbol === head(symbols)
+                   ? set_head(vals, val)
+                   : scan(tail(symbols), tail(vals));
+        } 
+        if (env === the_empty_environment) {
+            error(symbol, "unbound name -- assignment");
+        } else {
+            const frame = first_frame(env);
+            return scan(frame_symbols(frame), frame_values(frame));
+        }
+    }
+    return env_loop(env);
+}
+
+// function objects
+
+function make_function(parameters, body, env) {
+    return list("compound_function",
+                parameters, body, env);
+}
+
+function is_compound_function(f) {
+    return is_tagged_list(f, "compound_function");
+}
+function function_parameters(f) { 
+    return list_ref(f, 1); 
+}
+function function_body(f) { 
+    return list_ref(f, 2);
+}
+function function_environment(f) {
+    return list_ref(f, 3);
+}
+
+function is_primitive_function(fun) {
+    return is_tagged_list(fun, "primitive");
+}
+
+function primitive_implementation(fun) { 
+    return head(tail(fun)); 
+}
+
+// setting up global environment
+
+const primitive_functions = list(
+    //   list("head",    head             ),
+    //   list("tail",    tail             ),
+    //   list("pair",    pair             ),
+       list("list",    list             ),
+       list("is_null", is_null          ),
+       list("display", display          ),
+       list("error",   error            ),
+       list("math_abs",math_abs         ),
+       list("+",       (x, y) => x + y  ),
+       list("-",       (x, y) => x - y  ),
+       list("-unary",   x     =>   - x  ),
+       list("*",       (x, y) => x * y  ),
+       list("/",       (x, y) => x / y  ),
+       list("%",       (x, y) => x % y  ),
+       list("===",     (x, y) => x === y),
+       list("!==",     (x, y) => x !== y),
+       list("<",       (x, y) => x <   y),
+       list("<=",      (x, y) => x <=  y),
+       list(">",       (x, y) => x >   y),
+       list(">=",      (x, y) => x >=  y),
+       list("!",        x     =>   !   x)
+       );
+       
+const primitive_function_symbols =
+    map(head, primitive_functions);
+    
+const primitive_function_objects =
+    map(fun => list("primitive", head(tail(fun))),
+        primitive_functions);
+
+const primitive_constants = list(list("undefined", undefined),
+                                 list("Infinity",  Infinity),
+                                 list("math_PI",   math_PI),
+                                 list("math_E",    math_E),
+                                 list("NaN",       NaN)
+                                );
+const primitive_constant_symbols =
+    map(c => head(c), primitive_constants);
+const primitive_constant_values =
+    map(c => head(tail(c)), primitive_constants);
+
+function apply_primitive_function(fun, arglist) {
+    return apply_in_underlying_javascript(
+               primitive_implementation(fun), arglist);
+}
+
+function setup_environment() {
+    return extend_environment(append(primitive_function_symbols,
+                                     primitive_constant_symbols),
+                              append(primitive_function_objects, 
+                                     primitive_constant_values),
+                              the_empty_environment);
+}
+
+const the_global_environment = setup_environment();
+
+// 
+// running the evaluator
+// 
+
+function parse_and_evaluate(program) {
+    return evaluate(make_block(parse(program)), 
+                    the_global_environment);
+}
+
+// we can write nonsense in our function body and conditional
+// consequent/alternative, as long as we don't have to evaluate it
+display(parse_and_evaluate(`
+function nonsense(x) {
+    a = b = chocolate_sundae - ligma;
+}
+
+true ? 1 : head(null);
+`));
+
+// with lazy evaluation, we can represent infinite lists without
+// the use of streams
+parse_and_evaluate(`
+
+function pair(x, y) {	
+    return m => m(x, y);
+}
+function head(z) {    
+    return z((p, q) => p);
+}
+function tail(z) {
+    return z((p, q) => q);
+}
+
+function list_ref(items, n) {	
+    return n === 0
+           ? head(items)
+           : list_ref(tail(items), n - 1);
+}
+function map(fun, items) {	   
+    return is_null(items)
+           ? null
+           : pair(fun(head(items)),
+                  map(fun, tail(items)));
+}
+
+function add_lists(list1, list2) {
+    return is_null(list1)
+           ? list2
+           : is_null(list2)    
+           ? list1
+           : pair(head(list1) + head(list2),
+                  add_lists(tail(list1), tail(list2)));
+}
+
+const ones = pair(1, ones);
+const integers = pair(1, add_lists(ones, integers));
+
+display(list_ref(integers, 5));
+
+`);
+
+// BFS Breath First Search
+// DFS Depth First Search
+// recursive backtracking
+
+//            1
+//           2 3
+//          4 5 6
+//         7 8 9 10
+
+function dfs(i, j, emap, visited) {
+  for i in range(0, len(emap)) 
+    fir j in range(0, len(emap[0]))
+}
+
+// Iterate thru all elements in matrix
+// Store a visited matrix
+
+const emap = [ [1, 2, 0, 0, 1, 0, 0, 1],
+               [1, 2, 2, 3, 1, 0, 2, 1],
+               [0, 1, 1, 0, 1, 0, 0, 1],
+               [0, 0, 0, 0, 0, 3, 3, 0],
+               [1, 1, 2, 0, 0, 0, 0, 0],
+               [1, 0, 1, 0, 0, 1, 2, 3],
+               [1, 3, 2, 1, 1, 0, 1, 1] ];
+ 
+// Pair -> Data structure
+// Array
+// Linked list<T>
+// Stack
+// LIFO - Last in first out
+// 1 2 3 -> 3 2 1
+// Queue
+// FIFO - First in first out
+// Tree -> BST
+
+// ()()()()())
+// Stack: 
+// 
+// f()
+// main()
+
+
+// build_tree()
+// build_BAE_tree(list( "(", "(", 2, "+", 5, ")", "*", 100, ")" ))
+// prog_env()
+// LIFO: 
+
+
+// 
+
+// list( "(", "(", 2, "+", 5, ")", "*", 100, ")" );
+// list(123) -> 123
+// list(2, "+", 5), "*", 100
+
+// TODO List
+// - December
+
+// CVWO or Orbital + Internship or Orbital or Enjoy life
+
+
+// number
+// bae_list || operator || bae_list
+
+function build_BAE_tree(bae_list) {
+    
+    let next_token = bae_list;
+
+    function build_tree() {
+        if (equal(head(next_token), "(")) {
+            next_token = tail(next_token);
+            const left_tree = build_tree();
+            const op = head(next_token);
+            next_token = tail(next_token);
+            const right_tree = build_tree();
+            next_token = tail(next_token); // skip over ")"
+            return list(left_tree, op, right_tree);
+        } else { // token is a number
+            const token = head(next_token);
+            next_token = tail(next_token);
+            return token;
+        }
+    }
+
+    return build_tree();
+}
+
+
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
