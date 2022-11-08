@@ -1,0 +1,637 @@
+function memo_fun(fun) {
+    let already_run = false;
+    let result = undefined;
+    function mfun() {
+        if (!already_run) {
+            result = fun();
+            already_run = true;
+            return result;
+        } else {
+            return result;
+        }
+    }
+    return mfun;
+}
+
+function memoize(f) { 
+    const mem = [];
+    function mf(x) {
+        if (mem[x] !== undefined) {
+        return mem[x]; 
+        } else {
+        const result = f(x);
+        mem[x] = result; 
+        return result;
+        } 
+    }
+    return mf; 
+}
+
+function createSequence(f, xs) {
+    const mem = [];
+    
+    function memo_seq(n) {
+        if (mem[n] !== undefined) {
+            return mem[n];
+        } else {
+            const starting_len = length(xs);
+            const result = n < starting_len
+                            ? list_ref(xs, n)
+                            : f(memo_seq, n);
+            mem[n] = result;
+            return result;
+        }
+    }
+    return memo_seq;
+}
+
+function permutations(ys) {
+    return is_null(ys)
+        ? list(null)
+        : accumulate(append, null,
+            map(x => map(p => pair(x, p),
+                         permutations(remove(x, ys))),
+                ys));
+}
+
+
+
+
+const ones_stream = pair(1, () => ones_stream);
+function integers_from(n) {
+    return pair(n, () => integers_from(n + 1));
+}
+
+function add_streams(s1, s2) {
+    if (is_null(s1)) {
+        return s2;
+    } else if (is_null(s2)) {
+        return s1;
+    } else {
+        return pair(head(s1) + head(s2),
+                () => add_streams(stream_tail(s1),
+                stream_tail(s2)));
+    }
+}
+
+
+function shorten_stream(s, k) {
+    function helper(count,stream){
+        if(is_null(stream) || count === k){
+            return null;
+        } else{
+            while(count < k){
+                return pair(head(stream), () => helper(count+1,
+                                                    stream_tail(stream)));
+            }
+        }
+    }
+    return helper(0,s);
+}
+
+function combine(s1, s2) {
+    if (is_null(s1)) {
+        return s2();
+    } else if (is_null(s2())) {
+        return s1;
+    } else {
+        return pair(head(s1), () => pair(head(s2, () =>
+        combine(stream_tail(s1), stream_tail(s2)))));
+    }
+}
+
+
+
+function stream_to_array(s, n) {
+    let res = [];
+    for (let i = 0; i < n; i = i + 1) {
+        res[i] = head(s);
+        s = stream_tail(s);
+    }
+    return res;
+}
+
+function array_to_stream(arr) {
+    function helper(count) {
+        if (count === array_length(arr)) {
+            return null;
+        }
+        return pair(arr[count], () => helper(count + 1));
+    }
+    return helper(0);
+}
+
+//---------------------------------------------------------------
+
+function swap(A, i, j) {
+    const temp = A[i];
+    A[i] = A[j];
+    A[j] = temp;
+}
+//---------------------------------------------------------------
+function copy_array(A) {
+    const len = array_length(A);
+    const B = [];
+    for (let i = 0; i < len; i = i + 1) {
+        B[i] = A[i];
+    }
+    return B;
+}
+//---------------------------------------------------------------
+function reverse_array(A) {
+    const len = array_length(A);
+    const half_len = math_floor(len / 2);
+    for (let i = 0; i < half_len; i = i + 1) {
+        swap(A, i, len - 1 - i);
+    }
+}
+//---------------------------------------------------------------
+function array_to_list(A) {
+    const len = array_length(A);
+    let L = null;
+    for (let i = len - 1; i >= 0; i = i - 1) {
+        L = pair(A[i], L);
+    }
+    return L;
+}
+//---------------------------------------------------------------
+function list_to_array(L) {
+    const A = [];
+    let i = 0;
+    for (let p = L; !is_null(p); p = tail(p)) {
+        A[i] = head(p);
+        i = i + 1;
+    }
+    return A;
+}
+//---------------------------------------------------------------
+// Sorts the array of numbers in ascending order.
+function sort_ascending(A) {
+    const len = array_length(A);
+    for (let i = 1; i < len; i = i + 1) {
+        const x = A[i];
+        let j = i - 1;
+        while (j >= 0 && A[j] > x) {
+            A[j + 1] = A[j];
+            j = j - 1;
+        }
+        A[j + 1] = x;
+    }
+}
+//---------------------------------------------------------------
+function digits_to_string(digits) {
+    const len = array_length(digits);
+    let str = "";
+    for (let i = 0; i < len; i = i + 1) {
+        str = str + stringify(digits[i]);
+    }
+    return str;
+}
+
+
+
+
+
+function combineSequences(xs, comb){
+    const combseq = accumulate((x,y) => is_null(y) ? x : comb(x,y), null, xs);
+    return combseq;
+}
+
+function fibo(n) {
+    return n === 1 
+        ? 0
+        : n === 2
+        ? 1 
+        : fibo(n - 1) + fibo(n - 2);
+}
+
+function factorial(n) {
+    return n === 1
+        ? 1
+        : n * factorial(n - 1);
+}
+
+
+
+//-----------------------------BAE--------------------------------
+function evaluate_BAE_tree(bae_tree) {
+    
+    if (is_list(bae_tree)) {
+        const left = evaluate_BAE_tree(head(bae_tree));
+        const right = evaluate_BAE_tree(head(tail(tail(bae_tree))));
+        const op = head(tail(bae_tree));
+        if (op === "+") {
+            return left + right;
+        } else if (op === "-") {
+            return left - right;
+        } else if (op === "*") {
+            return left * right;
+        } else { // (op === "/")
+            return left / right;
+        }
+    } else { // is a number
+        return bae_tree;
+    }
+}
+
+function build_BAE_tree(bae_list) {
+    
+    let next_token = bae_list;
+
+    function build_tree() {
+        if (equal(head(next_token), "(")) {
+            next_token = tail(next_token);
+            const left_tree = build_tree();
+            const op = head(next_token);
+            next_token = tail(next_token);
+            const right_tree = build_tree();
+            next_token = tail(next_token); // skip over ")"
+            return list(left_tree, op, right_tree);
+        } else { // token is a number
+            const token = head(next_token);
+            next_token = tail(next_token);
+            return token;
+        }
+    }
+
+    return build_tree();
+}
+
+function make_postfix_exp(bae) {
+
+    const pfe = [];
+    let next = 0;
+    
+    function make_pfe(sub_bae) {
+        if (is_number(sub_bae)) {
+            pfe[next] = sub_bae;
+            next = next + 1;
+        } else {
+            make_pfe(sub_bae[0]);
+            make_pfe(sub_bae[2]);
+            pfe[next] = sub_bae[1];
+            next = next + 1;
+        }
+    }
+    make_pfe(bae);
+    return pfe;
+}
+
+
+function eval_postfix_exp(pfe) {
+    let next = array_length(pfe) - 1;
+
+    function evaluate() {
+        const token = pfe[next];
+        next = next - 1;
+        if (is_number(token)) {
+            return token;
+            next = next - 1;
+        } else {
+            const op = token;
+            const right = evaluate();
+            const left = evaluate();
+            if (op === "+") {
+                return left + right;
+            } else if (op === "-") {
+                return left - right;
+            } else if (op === "*") {
+                return left * right;
+            } else {
+                return left / right;
+            }
+           
+        }
+    }
+    return evaluate();
+}
+
+
+
+//----------------------------------SORTS--------------------------------
+
+
+//--------------------------------MERGE SORT------------------------------------
+function take(xs, n) {
+    return n === 0 
+           ? null
+           : pair(head(xs), take(tail(xs), n - 1));
+}
+
+function drop(xs, n) {
+    return n === 0
+           ? xs
+           : drop(tail(xs), n - 1);
+}
+
+function multiply_poly(poly1, poly2) {
+    const data = map(p => 
+                    map(innerp => pair(head(p) * head(innerp), tail(p) + tail(innerp))
+                                                            , poly2)
+                                                                , poly1);
+    return accumulate(add_poly, null, data);
+}
+
+function merge(xs, ys) {
+    if (is_null(xs)) {
+        return ys;
+    } else if (is_null(ys)) {
+        return xs;
+    } else {
+        const x = head(xs);
+        const y = head(ys);
+        return (x < y)
+               ? pair(x, merge(tail(xs), ys))
+               : pair(y, merge(xs, tail(ys)));
+    }
+}
+
+function merge_sort(xs) {
+    if (is_null(xs) || is_null(tail(xs))) {
+        return xs;
+    } else {
+        const mid = math_floor(length(xs) / 2);
+        return merge(merge_sort(take(xs, mid)),
+                     merge_sort(drop(xs, mid)));
+    }
+}
+
+//-----------------------------MERGE SORT ARRAY----------------------------------
+
+function merge_sort(A) {
+    merge_sort_helper(A, 0, array_length(A) - 1);
+}
+
+function merge_sort_helper(A, low, high) { 
+    if (low < high) {
+        const mid = math_floor((low + high) / 2); 
+        merge_sort_helper(A, low, mid); 
+        merge_sort_helper(A, mid + 1, high); 
+        merge(A, low, mid, high);
+    } 
+}
+
+function merge(A, low, mid, high) {
+    const B = [];
+    let left = low;
+    let right = mid + 1;
+    let Bidx = 0;
+    
+    while (left <= mid && right <= high) {
+        if (A[left] <= A[right]) {
+            B[Bidx] = A[left];
+            left = left + 1;
+        } else {
+            B[Bidx] = A[right];
+            right = right + 1;
+        }
+        Bidx = Bidx + 1;
+    }
+    
+    while (left <= mid) {
+        B[Bidx] = A[left];
+        Bidx = Bidx + 1;
+        left = left + 1;
+    }   
+    while (right <= high) {
+        B[Bidx] = A[right];
+        Bidx = Bidx + 1;
+        right = right + 1;
+    }
+    
+    for (let k = 0; k < high - low + 1; k = k + 1) {
+        A[low + k] = B[k];
+    }
+}
+
+//-----------------------------INSERTION SORT-----------------------------------
+function insert(x, xs) {
+    return is_null(xs)
+           ? list(x)
+           : x <= head(xs)
+               ? pair(x, xs)
+               : pair(head(xs), insert(x, tail(xs)));
+}
+
+function insertion_sort(xs) {
+    return is_null(xs)
+           ? xs
+           : insert(head(xs), insertion_sort(tail(xs)));
+}
+
+
+//-----------------------------INSERTION SORT ARRAY-----------------------------
+
+function insertion_sort(A) {
+    const len = array_length(A);
+    for (let i = 1; i < len; i = i + 1) {
+        let j = i - 1;
+        while (j >= 0 && A[j] > A[j + 1]) {
+            swap(A, j, j + 1);
+            j = j - 1;
+        }
+    }
+}
+
+
+//-----------------------------SELECTION SORT-----------------------------------
+function smallest(xs) {
+    function h(ys, min) {
+        return is_null(ys) 
+               ? min
+               : head(ys) < min
+                 ? h(tail(ys), head(ys))
+                 : h(tail(ys), min);
+    }
+    return h(xs, head(xs));
+}
+
+
+function selection_sort(xs) {
+    if (is_null(xs)) {
+        return xs;
+    } else {
+        const x = smallest(xs);
+        return pair(x, selection_sort(remove(x, xs)));
+    }
+}
+
+//--------------------------------SELECTION SORT ARRAY------------------------------------
+
+function selection_sort(A) {
+    const len = array_length(A);
+
+    for (let i = 0; i < len - 1; i = i + 1) {
+        let min_pos = find_min_pos(A, i, len - 1);
+        swap(A, i, min_pos);
+    }
+}
+
+function find_min_pos(A, low, high) {
+    let min_pos = low;
+    for (let j = low + 1; j <= high; j = j + 1) {
+        if (A[j] < A[min_pos]) {
+            min_pos = j;
+        }
+    }
+    return min_pos;
+}
+
+
+//------------------------------QUICKSORT --------------------------------------
+
+function partition(xs, p) {
+    // your answer here
+    return is_null(xs)
+            ? pair(list(), list())
+            : head(xs) <= p
+            ? pair(pair(head(xs), head(partition(tail(xs), p))),
+            tail(partition(tail(xs), p)))
+            : pair(head(partition(tail(xs), p)),
+            pair(head(xs), tail(partition(tail(xs), p))));
+}
+function quicksort(xs) {
+    // your answer here
+    if (is_null(xs)) {
+        return null;
+    } else {
+        const split = partition(tail(xs), head(xs));
+        return append(quicksort(head(split)),
+                pair(head(xs), quicksort(tail(split))));
+    }
+    
+}
+
+
+//----------------------------------MATRIX RELOADED------------------------------
+
+// destructive method (modifies current matrix, doesn't create new arrays)
+function rotate_matrix(M) {
+    const n = array_length(M);  // M is assumed n x n.
+    
+    function swap(r1, c1, r2, c2) {
+        const temp = M[r1][c1];
+        M[r1][c1] = M[r2][c2];
+        M[r2][c2] = temp;
+    }
+
+    if (n === 1) {
+        return M;
+    }
+    //tranpose matrix
+    for (let i = n - 1; i >= 0; i = i - 1) {
+        for (let j = n - 1; j > i; j = j - 1) {
+            swap(i, j, j, i);
+        }
+    }
+    
+    //flip vertically
+    for (let i = 0; i < n; i = i + 1) {
+        for (let j = 0; j < math_floor(n / 2) ; j = j + 1) {
+            swap(i, j, i, n - 1 - j);
+        }
+    }
+}
+
+// from mockPA
+function alt_column_matrix(R, C) {
+    const M = [];
+
+    for (let r = 0; r < R; r = r + 1) {
+        M[r] = [];
+    }
+
+    let count = 1;
+
+    for (let c = 0; c < C; c = c + 1) {
+        if (c % 2 === 0) {
+            for (let r = 0; r < R; r = r + 1) {
+                M[r][c] = count;
+                count = count + 1;
+            }
+        } else {
+            for (let r = R - 1; r >= 0; r = r - 1) {
+                M[r][c] = count;
+                count = count + 1;
+            }
+        }
+    }
+
+    return M;
+}
+
+//----------------------------------BINARY SEARCH------------------------------
+function binary_search(A, v) { 
+    let low = 0;
+    let high = array_length(A) - 1;
+    while (low <= high) {
+        const mid = math_floor((low + high) / 2 ); 
+        if (v === A[mid]) {
+            break;
+        } else if (v < A[mid]) {
+            high = mid - 1; 
+        } else {
+            low = mid + 1; }
+    }
+    return (low <= high);
+}
+
+//----------------------------TREE PROCESSING----------------------------------
+
+function count_data_items(tree) {
+    return is_null(tree)
+           ? 0
+           : ( is_list(head(tree))
+               ? count_data_items(head(tree))
+               : 1 )
+             +
+             count_data_items(tail(tree));
+}
+
+function sum_data_items(tree) {
+    return is_null(tree)
+           ? 0
+           : ( is_list(head(tree))
+               ? sum_data_items(head(tree))
+               : head(tree) )
+             +
+             sum_data_items(tail(tree));
+}
+
+function map_tree(f, tree) { 
+    return map(sub_tree =>
+                    !is_list(sub_tree)
+                        ? f(sub_tree)
+                        : map_tree(f, sub_tree),
+                                            tree);
+}
+
+
+// MCE
+// apply:
+// “args” is a list of values
+// “fun” is a result of make_function
+
+// normal function:
+// normal function => const decl bounded to a lambda => calls make_function
+
+// scan_out_declarations:
+// returns a list of all symbols (vars) in the sequence / 1x decl (used in eval_block to get locals)
+// follow env model, we first initialise all the declarations followed by assigning anot them with *unassigned*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
