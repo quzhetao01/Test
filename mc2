@@ -1,0 +1,173 @@
+// xp
+// tao
+
+// Environment model
+// Environment is a sequence of frames
+// Frame can be thought of as a mapping of names to values 
+
+function square(x) {
+  return x * x;
+}
+
+function delayed_square(f) {
+    return f() * f();
+}
+
+square((x => 5) (3));
+
+delayed_square((() => 5));
+
+// Answer: the current environment at the time of evaluating the lambda expression. 
+
+// What is the relationship between nested scopes and nested environments? 
+// How can we guess the environment structures just by looking at the program?
+// Ans: enclosing environments correspond to enclosing scopes with declarations.
+
+// Program frame
+
+{
+  const x = 1;  
+  // Frame 1
+  {
+    {
+      x + 5;  
+    }
+    
+    {
+      const y = 3;
+    }
+
+    {
+      {
+        let k = true;
+        // Frame 2
+        // how many environments/frames are there
+      }
+    }
+    
+  }
+}
+
+// How does the environment model make sure that 
+// names are not accessed before their declaration is evaluated?
+// Answer: Names initially refer to a special value “unassigned” 
+//         (represented by blank space in the environment model).
+
+
+// Memoization
+// Functional programming
+// Functions are pure : Mathematics x -> y
+// Does not depend on external state
+// Tradeoff between time and space
+
+
+
+// Is it possible to write a higher-order memoize function that 
+// takes a function as argument and returns a memoized version?
+// Answer: yes and no: we need to pass the memoized version (wishful thinking) as argument to memoize. 
+// (what happens if you pass the original non-memoized version?)
+
+// const onesB = pair(1, memo_fun(() => ms("B", onesB)));
+
+// function fibgen(a, b) {
+//   return pair(a, () => fibgen(b, a + b));
+// }
+// const fibs = fibgen(0, 1);
+
+
+// function memo_fun(fun) {
+//     let already_run = false;
+//     let result = undefined;
+
+//     function mfun() {
+//         if (!already_run) {
+//             result = fun();
+//             already_run = true;
+//             return result;
+//         } else {
+//             return result;
+//         }
+//     }
+//     return mfun;
+// }
+
+// function ms(m, s) {
+//     display(m);
+//     return s;
+// }
+
+
+// function fibgen(a, b) {
+//   return pair(a, memo_fun(() => ms("aa", fibgen(b, a + b))));
+// }
+
+// const fibs = fibgen(0, 1);
+
+// display(eval_stream(fibs, 10));
+// eval_stream(fibs, 12);
+
+// Is memoization limited to two dimensions?
+
+// Should you memoize every function that can be memoized?
+// 1. Doesnt take much time to compute anyways
+// 2. If you will use the function again
+
+// Systems that can scale 
+// Caching
+// Cached
+
+
+// Streams
+// Central idea of streams????
+// Demand-driven computation
+// Lazy 
+// 3 elements and a long list 
+// Space
+
+// Why can streams be infinite, but lists cannot?
+// const stream = ... // Constant space
+// evaluation on the stream = // Linear space O(N) space for a stream of size n
+
+// Why can we use the stream itself in its own declaration (fib, ones, etc)
+
+const add_streams = (s1, s2) => ...;
+const ones = ones;
+const fibs = pair(1, () => pair(1, () => add_streams(fibs, stream_tail(fibs))));
+
+// Why are some stream functions called “lazy” and others “not lazy” or “eager”?
+// eager == not lazy
+// stream_tail eager
+// stream_map lazy
+// stream_ref eager
+// eval_stream eager
+// add_streams lazy 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
